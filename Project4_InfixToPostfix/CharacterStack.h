@@ -20,68 +20,75 @@
 using namespace std;
 //*****************************************************************************************************
 struct CharacterType {
-	// The structure "CustomerType" holds each record file.
-	int tArrival, tProcess;
-	string name;
+		// The structure "CustomerType" holds each record file.
+	string type;
+	char charValue;
+	int intValue;
 	CharacterType *next;
 };
-class CharacterStackClass {
+class StackClass {
 public:
-	CharacterStackClass();
-	void add(CharacterType);
+	StackClass();
+	void push(CharacterType);
+	void clear();
 	CharacterType pop();
 	bool isEmpty();
 private:
 	CharacterType *StartPtr;
 };
 //*****************************************************************************************************
-CharacterStackClass::CharacterStackClass() {
+StackClass::StackClass() {
 	// Initialize the start Ptr to NULL
 	StartPtr = NULL;
 }
 //*****************************************************************************************************
-inline void CharacterStackClass::add(CharacterType customer)
+inline void StackClass::clear() {
+		// Receives – Nothing
+		// Task - Clear all values from the stack
+		// Returns - Nothing
+	while (StartPtr != NULL) {
+		pop();
+	}
+}
+inline void StackClass::push(CharacterType character)
 {
-	// Receives – One structure of type CustomerType
-	// Task - Add the received structure to the back of customerlist
-	// Returns - Nothing
+		// Receives – One structure of type CharacterType
+		// Task - Add the received structure to the front of the stack
+		// Returns - Nothing
 
-	// Read in the received customer to a new pointer.
+		// Read in the received character to a new pointer.
 	CharacterType *CurrentPtr, *newPtr;
 	newPtr = new(CharacterType);
-	newPtr->tArrival = customer.tArrival;
-	newPtr->name = customer.name;
-	newPtr->tProcess = customer.tProcess;
+	newPtr->type = character.type;
+	newPtr->charValue = character.charValue;
+	newPtr->intValue = character.intValue;
 
-
+		// Save the position of the start pointer
 	CurrentPtr = StartPtr;
-	// If there are no nodes in list, put this one at the beginning and return
+		// If there are no nodes in stack, put this one at the beginning and return
 	if (StartPtr == NULL) {
 		StartPtr = newPtr;
 		newPtr->next = NULL;
 		return;
 	}
-	// Find the end of the list
-	while (CurrentPtr->next != NULL) {
-		CurrentPtr = CurrentPtr->next;
+	else {	// Insert the new character at the top of the stack
+		StartPtr = newPtr;
+		StartPtr->next = CurrentPtr;
 	}
-	// Push to the end of the list
-	CurrentPtr->next = newPtr;
-	newPtr->next = NULL;
 }
 //*****************************************************************************************************
-inline CharacterType CharacterStackClass::pop()
+inline CharacterType StackClass::pop()
 {
-	// Receives – Nothing
-	// Task - Remove one node from front of list
-	// Returns - The removed node.
+		// Receives – Nothing
+		// Task - Remove one node from front of the stack
+		// Returns - The removed node.
 	CharacterType *TempPtr;
 	TempPtr = StartPtr;
 	StartPtr = StartPtr->next;
 	return *TempPtr;
 }
 //*****************************************************************************************************
-inline bool CharacterStackClass::isEmpty()
+inline bool StackClass::isEmpty()
 {
 	// Receives – Nothing
 	// Task - Check whether the list is empty
