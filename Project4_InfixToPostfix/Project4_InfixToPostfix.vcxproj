@@ -110,6 +110,15 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="Project4.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="CharacterStack.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <Text Include="stack_in.txt">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">false</ExcludedFromBuild>
+    </Text>
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
