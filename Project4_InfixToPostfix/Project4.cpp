@@ -337,7 +337,7 @@ int evaluatePostfix(ofstream&dataOUT, StackClass postfixExp) {
 	printPostAndOpStack(dataOUT, postfixExp, opStack);
 		// If the answer is still in opstack, remove it, then print one last time
 	if (!opStack.isEmpty()) {
-		opStack.clear();
+		opStack.empty();
 		printPostAndOpStack(dataOUT, postfixExp, opStack);
 	}
 	return answer; //Return the answer of the expression
@@ -360,8 +360,8 @@ int main() {
 		int answer = evaluatePostfix(dataOUT, postfixExp); //Evaluate the expression
 		printResults(dataOUT, infixExp, answer); //Print the final results
 			// Reset both infix and postfix stacks for the next line
-		infixExp.clear();
-		postfixExp.clear();
+		infixExp.empty();
+		postfixExp.empty();
 			// Start a new page
 		newPage(dataOUT);
 	}

@@ -7,7 +7,7 @@
 //*    MODULES     : push - Insert one item to the front of the stack                                 *
 //*                  pop - Remove and return one item from the front of the stack                     *
 //*                  isEmpty - Check to see whether the stack is empty                                *
-//*                  clear - Clear each of the items from the stack                                   *
+//*                  empty - Clear each of the items from the stack                                   *
 //*                                                                                                   *
 //*****************************************************************************************************
 #include <iostream>
@@ -28,7 +28,7 @@ class StackClass {
 public:
 	StackClass();
 	void push(ItemType);
-	void clear();
+	void empty();
 	ItemType pop();
 	bool isEmpty();
 private:
@@ -40,7 +40,7 @@ StackClass::StackClass() {
 	StartPtr = NULL;
 }
 //*****************************************************************************************************
-inline void StackClass::clear() {
+inline void StackClass::empty() {
 		// Receives – Nothing
 		// Task - Clear all values from the stack
 		// Returns - Nothing

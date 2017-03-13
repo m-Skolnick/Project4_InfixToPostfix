@@ -5,52 +5,6 @@
                                 CONVERSION DISPLAY
 Infix Expression          POSTFIX Expression              Stack Contents
                                                           (Top to Bottom)
-             (3+4)*6              Empty                         Empty     
-              3+4)*6              Empty                         (         
-               +4)*6              3                             (         
-                4)*6              3                             +(        
-                 )*6              34                            +(        
-                  *6              34+                           Empty     
-                   6              34+                           *         
-               Empty              34+6                          *         
-               Empty              34+6*                         Empty     
-
-                                Evaluation DISPLAY
-          POSTFIX Expression                        Stack Contents
-                                                    (Top to Bottom)
-               34+6*                                    Empty          
-                4+6*                                    3              
-                 +6*                                    43             
-                  6*                                    7              
-                   *                                    67             
-               Empty                                    42             
-               Empty                                    Empty          
-ORIGINAL EXPRESSION AND THE ANSWER:
-            (3+4)*6 = 42
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-                                CONVERSION DISPLAY
-Infix Expression          POSTFIX Expression              Stack Contents
-                                                          (Top to Bottom)
                8-3+5              Empty                         Empty     
                 -3+5              8                             Empty     
                  3+5              8                             -         
@@ -71,10 +25,6 @@ Infix Expression          POSTFIX Expression              Stack Contents
                Empty                                    Empty          
 ORIGINAL EXPRESSION AND THE ANSWER:
             8-3+5 = 10
-
-
-
-
 
 
 
