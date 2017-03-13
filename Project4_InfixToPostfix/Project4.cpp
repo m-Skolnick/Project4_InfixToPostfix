@@ -10,18 +10,29 @@
 //*****************************************************************************************************
 //***********************************  PROGRAM DESCRIPTION  *******************************************
 //*                                                                                                   *
-//*   PROCESS: 
-
-
-//*							NEED TO FILL THIS IN
-
+//*   PROCESS:  One algebraic expression is read in as a series of characters. Each character of the  *
+//*             expression is then converted to an item and pushed onto a stack for that expression.  *
+//*             each item contains properties such as whether it is an operator or operand, and if it *
+//*             is an operator, the priority of the oprator. The read infix expression is then        *
+//*             converted to its equal postfix expression. Throughout the conversion process, a log   *
+//*             is printed.                                                                           *
+//*             After conversion, the postfix expression is evaluated, and the answer is printed.     *
 //*                                                                                                   *
 //*   USER DEFINED                                                                                    *
 //*    MODULES     : Footer - Prints a footer to signify end of program output                        *
 //*                  Header - Prints a header to signify start of program output                      *
-//*                  processData - Data from the input file is read into the program and processed    *
+//*                  newPage - Inserts blank lines until the start of a new page                      *
+//*                  invertStack - Inverts the direction of a stack                                   *
+//*                  getLine - Reads in one line with one expression from the input file              *
+//*                  printStack - Prints each of the values in a stack                                *
+//*                  printResults - Prints the original infix expression with the final answer        *
+//*                  printTitleConversion - Prints the conversion section title                       *
+//*                  printTitleEvaluation - Prints the evaluation section title                       *
+//*                  printAllStack - Prints infix and post fix expressions along with opstack         *
+//*                  printPostandOpStack - Prints the post fix expression and the opstack             *
+//*                  convertInfixToPostfix - Converts an infix expression to its corresponding postfix*
+//*                  evaluatePostfix - Evaluates a postfix expression, and returns the answer         *
 //*                  main - Variables are declared, functions are called, and headers are printed     *
-//*                  printResults - Read each Op code character and perform the subsequent action.    *
 //*                                                                                                   *
 //*****************************************************************************************************
 #include <iostream>
@@ -237,13 +248,16 @@ void convertInfixToPostfix(ofstream&dataOUT, StackClass infixExp, StackClass &po
 				// push both to stack
 			item2 = opStack.pop();
 			if (item1.strValue == ")") {
-
+					// If a right perenthesis is encountered, pop from the stack until matching
+					// left perenthesis is found
 				while (item2.strValue != "(") {
 					postfixExp.push(item2);
 					item2 = opStack.pop();
 				}
 				continue;
 			}
+				// If left perenthesis is encountered, or priority of operator is greater than
+				// operator just popped of stack, push both operators back to op stack
 			if (item1.strValue == "(" || item1.priority > item2.priority) {
 				opStack.push(item2);
 				opStack.push(item1);
@@ -254,14 +268,13 @@ void convertInfixToPostfix(ofstream&dataOUT, StackClass infixExp, StackClass &po
 				opStack.push(item1); // Put operator from infix in opstack
 				continue;
 			}
-			if (item2.priority >= item1.priority) {
+				// If the second operator is of greater or equal priority to the first
+				// push the second item to the postfix expression, and put first back on stack
+			if (item1.priority <= item2.priority) {
 				postfixExp.push(item2);
 				opStack.push(item1);
 				continue;
 			}			
-			else {
-				postfixExp.push(item1);
-			}
 		}
 	}
 		// Print all stacks one last time before checking opstack contents
@@ -277,91 +290,79 @@ void convertInfixToPostfix(ofstream&dataOUT, StackClass infixExp, StackClass &po
 }
 //*****************************************************************************************************
 int evaluatePostfix(ofstream&dataOUT, StackClass postfixExp) {
-
-
+		// Receives – The output file, the postfix expression
+		// Task - Evaluate the postfix expression / print log
+		// Returns - The answer to the postfix expression
 	int answer = 0,result = 0;
-
 	StackClass opStack;
-	ItemType char1, char2, char3,resultChar;
-
+	ItemType item1, item2, item3,resultItem;
 	printTitleEvaluation(dataOUT); // Print title for evaluation steps
-
-	while (!postfixExp.isEmpty()) {
-		
-		printPostAndOpStack(dataOUT, postfixExp, opStack);
-
-
-		char1 = postfixExp.pop();
-
-		if (char1.type == "operand") {
-			opStack.push(char1);
+	while (!postfixExp.isEmpty()) { // Keep evaluating until postfix expression is empty.		
+		printPostAndOpStack(dataOUT, postfixExp, opStack); // Print both postfix expression and opstack
+		item1 = postfixExp.pop(); //Pop the first item from the post fix expression
+			//If the item is an operand, push it to the op stack and restart
+		if (item1.type == "operand") {
+			opStack.push(item1);
 			continue;
 		}
-		if (char1.type == "operator") {
-			char2 = opStack.pop();
-			char3 = opStack.pop();
-
-			if (char1.strValue == "/") {
-				answer = (char3.intValue / char2.intValue);
-				resultChar.priority = 2;
+		if (item1.type == "operator") {	//If the item is an operator pop the next two items from opstack
+			item2 = opStack.pop();
+			item3 = opStack.pop();
+				//If the operator is a divide symbol, divide the last popped operand by the one before
+			if (item1.strValue == "/") {
+				answer = (item3.intValue / item2.intValue);
+				resultItem.priority = 2;
+			} //If the operator is a multiply symbol, multiply the last popped operand by the one before
+			if (item1.strValue == "*") {
+				answer = (item3.intValue * item2.intValue);
+				resultItem.priority = 2;
+			} //If the operator is a addition symbol, add the last popped operand to the one before
+			if (item1.strValue == "+") {
+				answer = (item3.intValue + item2.intValue);
+				resultItem.priority = 1;
+			} //If the operator is a subtract symbol, subtract first operand from the second one
+			if (item1.strValue == "-") {
+				answer = (item3.intValue - item2.intValue);
+				resultItem.priority = 1;
 			}
-			if (char1.strValue == "*") {
-				answer = (char3.intValue * char2.intValue);
-				resultChar.priority = 2;
-			}
-			if (char1.strValue == "+") {
-				answer = (char3.intValue + char2.intValue);
-				resultChar.priority = 1;
-			}
-			if (char1.strValue == "-") {
-				answer = (char3.intValue - char2.intValue);
-				resultChar.priority = 1;
-			}
-
-			resultChar.intValue = answer;
-			resultChar.strValue = to_string(answer);
-			resultChar.type = "operand";
-			
-			opStack.push(resultChar);
-		}
-	
+				// Store the answer as an item to be pushed to the opstack
+			resultItem.intValue = answer;
+			resultItem.strValue = to_string(answer);
+			resultItem.type = "operand";
+				// Push the result to the opstack
+			opStack.push(resultItem);
+		}	
 	}
-
-		// Print postfix stack and opstack
+		// Print the postfix stack and opstack
 	printPostAndOpStack(dataOUT, postfixExp, opStack);
-
-		// if answer is still in opstack, remove it, then print one last time
+		// If the answer is still in opstack, remove it, then print one last time
 	if (!opStack.isEmpty()) {
 		opStack.clear();
 		printPostAndOpStack(dataOUT, postfixExp, opStack);
 	}
-
-
-	return answer;
+	return answer; //Return the answer of the expression
 }
 //*****************************************************************************************************
 int main() {
 		// Receives – Nothing
 		// Task - Call each necessary function of the program in order
 		// Returns - Nothing
-		// Declare variables used in program.	 
+		// Declare variables used in program.
 	ifstream dataIN;
 	ofstream dataOUT;
 	StackClass infixExp, postfixExp;
-
 	dataIN.open("stack_in.txt"); // Open the file containing data.
 	dataOUT.open("dataOUT.doc"); // Create and open the file to write data to.		
 	Header(dataOUT); // Print data header.
 	while (getLine(dataIN, infixExp)) { // While an expression is available, process it
 			// Process each line of data from the input file.
-		convertInfixToPostfix(dataOUT, infixExp, postfixExp);
-		int answer = evaluatePostfix(dataOUT, postfixExp);
-		printResults(dataOUT, infixExp, answer);
-
-			// Reset both infix and postfix stacks
+		convertInfixToPostfix(dataOUT, infixExp, postfixExp); //Convert infix to postfix
+		int answer = evaluatePostfix(dataOUT, postfixExp); //Evaluate the expression
+		printResults(dataOUT, infixExp, answer); //Print the final results
+			// Reset both infix and postfix stacks for the next line
 		infixExp.clear();
 		postfixExp.clear();
-			// Start on a new page
+			// Start a new page
 		newPage(dataOUT);
 	}
 	Footer(dataOUT); // Print footer. 
