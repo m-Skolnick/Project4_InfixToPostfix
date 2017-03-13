@@ -78,16 +78,16 @@ void newPage(ofstream&dataOUT) {
 }
 //*****************************************************************************************************
 StackClass invertStack(StackClass stack1) {
-	// Receives – One Stack
-	// Task - Invert stack to oposite order
-	// Returns - The inverted stack
+		// Receives – One Stack
+		// Task - Invert stack to oposite order
+		// Returns - The inverted stack
 
+		// Invert the stack passed in
 	StackClass stack2;
-
 	while (!stack1.isEmpty()) {
 		stack2.push(stack1.pop());
 	}
-
+		// Return the inverted stack
 	return stack2;
 }
 //*****************************************************************************************************
@@ -111,7 +111,13 @@ bool getLine(ifstream&dataIN, StackClass &infixStack) {
 				character.intValue = newLine[i] - '0';
 				character.type = "operand";
 			}
-			else {
+			else{
+				if (newLine[i] == '+' || newLine[i] == '-') {
+					character.priority = 1;
+				}
+				if (newLine[i] == '*' || newLine[i] == '/') {
+					character.priority = 2;
+				}
 				character.intValue = NULL;
 				character.type = "operator";
 			}
@@ -129,15 +135,11 @@ void printStack(ofstream&dataOUT, StackClass stack) {
 		// Receives – The output file and a stack
 		// Task - Print a stack
 		// Returns - Nothing
-	string stackString = "";
+	string stackString = ""; // Initialize string to hold characters in stack
 	if (stack.isEmpty()) {	// If the stack is empty, print "Empty"
 		dataOUT << "Empty";
 		return;
 	}
-	//while (!stack.isEmpty()) { // While there is another value in the stack, print it
-	//	dataOUT << stack.pop().charValue;
-		//dataOUT << " ";
-	//}
 	while (!stack.isEmpty()) { // While there is another value in the stack, add it to the string
 		stackString += stack.pop().charValue;
 	}
@@ -169,44 +171,82 @@ void printTitle2(ofstream&dataOUT) {
 	lineCount += 3;
 }
 //*****************************************************************************************************
+void printAllStacks(ofstream &dataOUT, StackClass infixStack,
+	StackClass postfixStack, StackClass operatorStack, int&loopCount) {
+	dataOUT << left; // Set output left justified
+	for (int i = 0; i < loopCount; i++) { // Add spaces to keep printed stack aligned on the right
+		dataOUT << " ";
+	}
+	dataOUT << setw(30 - loopCount);
+	printStack(dataOUT, infixStack); // Print the infix stack
+	dataOUT << setw(20);
+	printStack(dataOUT, invertStack(postfixStack)); // Print the Postfix stack
+	dataOUT << setw(60);
+	printStack(dataOUT, operatorStack); // Print the operand stack
+	dataOUT << right << endl; // Return output to right justified
+	lineCount += 2;
+	loopCount++; // Increment the count of how many times stacks have been printed
+}
 int convertInfixToPostfix(ofstream&dataOUT, StackClass infixStack,StackClass &postfixStack) {
 		// Receives – The output file, the infix stack and the postfixStack
 		// Task - Convert the infix expression to a postfix expression
 		// Returns - Nothing
-	StackClass operandStack;
-	CharacterType charToMove;
+	StackClass opStack;
+	CharacterType char1, char2;
 
 	printTitle1(dataOUT); // Print title for conversion steps
 	int loopCount = 0;
 
 	while (!infixStack.isEmpty()) {
 
-		dataOUT << left; // Set left justified
-		for (int i = 0; i < loopCount; i++) {
-			dataOUT << " ";
-		}
-		dataOUT << setw(30-loopCount);
-		printStack(dataOUT, infixStack); // Print the infix stack
-		dataOUT << setw(20);
-		printStack(dataOUT, invertStack(postfixStack)); // Print the Postfix stack
-		dataOUT << setw(60);
-		printStack(dataOUT, operandStack); // Print the operand stack
-		dataOUT << endl;
-		lineCount++;
-		
+		printAllStacks(dataOUT, infixStack, postfixStack, opStack, loopCount);
 
-		charToMove = infixStack.pop();
-		if (charToMove.type == "operator") {
-			operandStack.push(charToMove);
+			// pop the first character from the infix expression
+		char1 = infixStack.pop();
+			// If the item is an operand, push it to postfix and restart
+		if (char1.type == "operand") {
+			postfixStack.push(char1);
+			continue;
 		}
-		else {
-			postfixStack.push(charToMove);
-		}
-		loopCount++;
+			
+		if (char1.type == "operator") {
+				// If the item is an operator, and opstack is empty, push it to opstack
+			if (opStack.isEmpty()) {
+				opStack.push(char1);
+				continue;
+			}
+				// If the item is a left perenthesis, push it onto opstack
+			if (char1.charValue == '(') {
+				opStack.push(char1);
+				continue;
+			}
+			char2 = opStack.pop();
+			if (char1.charValue == ')') {
+				
+				while (char2.charValue != '(') {
+					postfixStack.push(char2);
+					char2 = opStack.pop();
+				}
+				continue;
+			}
+			else {
+				postfixStack.push(char1);
+			}
+			//else if (char2 != NULL) {
+				
+				//while (char2.priority >= char1.priority || !opStack.isEmpty()) {
+					//postfixStack.push(char2);
+
+				//}
+			
+			//}
+		}	
 	}
-	dataOUT << right << endl; // Return output to right justified
-	lineCount++;
-
+		// After infix expression has been emptied, finish removing operators from stack
+	while (!opStack.isEmpty()) {
+		postfixStack.push(opStack.pop());
+		printAllStacks(dataOUT, infixStack, postfixStack, opStack, loopCount);
+	}
 
 	printTitle2(dataOUT); // Print title for evaluation steps
 	

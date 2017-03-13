@@ -23,7 +23,7 @@ struct CharacterType {
 		// The structure "CustomerType" holds each record file.
 	string type;
 	char charValue;
-	int intValue;
+	int intValue, priority;
 	CharacterType *next;
 };
 class StackClass {
@@ -62,6 +62,7 @@ inline void StackClass::push(CharacterType character)
 	newPtr->type = character.type;
 	newPtr->charValue = character.charValue;
 	newPtr->intValue = character.intValue;
+	newPtr->priority = character.priority;
 
 		// Save the position of the start pointer
 	CurrentPtr = StartPtr;
@@ -82,6 +83,9 @@ inline CharacterType StackClass::pop()
 		// Receives – Nothing
 		// Task - Remove one node from front of the stack
 		// Returns - The removed node.
+	if (StartPtr == NULL) {
+		return *StartPtr;
+	}
 	CharacterType *TempPtr;
 	TempPtr = StartPtr;
 	StartPtr = StartPtr->next;
