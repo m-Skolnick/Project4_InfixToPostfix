@@ -1,14 +1,13 @@
 //************************************  PROGRAM IDENTIFICATION  ***************************************
 //*                                                                                                   *
-//*   PROGRAM FILE NAME:  CharacterStack.h               ASSIGNMENT #: 4                              *
+//*   PROGRAM FILE NAME:  ItemStack.h               ASSIGNMENT #: 4                                   *
 //*                                                                                                   *
 //*                                                                                                   *
 //*   USER DEFINED                                                                                    *
-//*    MODULES     : add - Insert one record of type CustomerType into list of records                *
-//*                  pop - Remove and return one record from the front of the list                    *
-//*                  checkForPop - Check to see if the front customer is ready to be popped from list *
-//*                  isEmpty - Check to see whether the list is empty                                 *
-//*                  getPTime() - Get the total process time for the list of customers
+//*    MODULES     : push - Insert one item to the front of the stack                                 *
+//*                  pop - Remove and return one item from the front of the stack                     *
+//*                  isEmpty - Check to see whether the stack is empty                                *
+//*                  clear - Clear each of the items from the stack                                   *
 //*                                                                                                   *
 //*****************************************************************************************************
 #include <iostream>
@@ -19,26 +18,25 @@
 #include <sstream>
 using namespace std;
 //*****************************************************************************************************
-struct CharacterType {
-		// The structure "CustomerType" holds each record file.
-	string type;
-	char charValue;
+struct ItemType {
+		// The structure "ItemType" holds each item of the stack
+	string type, strValue;
 	int intValue, priority;
-	CharacterType *next;
+	ItemType *next;
 };
 class StackClass {
 public:
 	StackClass();
-	void push(CharacterType);
+	void push(ItemType);
 	void clear();
-	CharacterType pop();
+	ItemType pop();
 	bool isEmpty();
 private:
-	CharacterType *StartPtr;
+	ItemType *StartPtr;
 };
 //*****************************************************************************************************
 StackClass::StackClass() {
-	// Initialize the start Ptr to NULL
+		// Initialize the start Ptr to NULL
 	StartPtr = NULL;
 }
 //*****************************************************************************************************
@@ -50,23 +48,21 @@ inline void StackClass::clear() {
 		pop();
 	}
 }
-inline void StackClass::push(CharacterType character)
+inline void StackClass::push(ItemType character)
 {
 		// Receives – One structure of type CharacterType
 		// Task - Add the received structure to the front of the stack
 		// Returns - Nothing
-
 		// Read in the received character to a new pointer.
-	CharacterType *CurrentPtr, *newPtr;
-	newPtr = new(CharacterType);
+	ItemType *CurrentPtr, *newPtr;
+	newPtr = new(ItemType);
 	newPtr->type = character.type;
-	newPtr->charValue = character.charValue;
+	newPtr->strValue = character.strValue;
 	newPtr->intValue = character.intValue;
 	newPtr->priority = character.priority;
-
 		// Save the position of the start pointer
 	CurrentPtr = StartPtr;
-		// If there are no nodes in stack, put this one at the beginning and return
+		// If there are no nodes in stack, put new one at the beginning and return
 	if (StartPtr == NULL) {
 		StartPtr = newPtr;
 		newPtr->next = NULL;
@@ -78,7 +74,7 @@ inline void StackClass::push(CharacterType character)
 	}
 }
 //*****************************************************************************************************
-inline CharacterType StackClass::pop()
+inline ItemType StackClass::pop()
 {
 		// Receives – Nothing
 		// Task - Remove one node from front of the stack
@@ -86,7 +82,7 @@ inline CharacterType StackClass::pop()
 	if (StartPtr == NULL) {
 		return *StartPtr;
 	}
-	CharacterType *TempPtr;
+	ItemType *TempPtr;
 	TempPtr = StartPtr;
 	StartPtr = StartPtr->next;
 	return *TempPtr;
@@ -94,9 +90,9 @@ inline CharacterType StackClass::pop()
 //*****************************************************************************************************
 inline bool StackClass::isEmpty()
 {
-	// Receives – Nothing
-	// Task - Check whether the list is empty
-	// Returns - true or false signifying whether the list is empty or not.
+		// Receives – Nothing
+		// Task - Check whether the stack is empty
+		// Returns - true or false signifying whether the list is empty or not.
 	if (StartPtr == NULL) {
 		return true;
 	}

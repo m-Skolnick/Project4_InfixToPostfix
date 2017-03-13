@@ -31,7 +31,7 @@
 #include <locale>
 #include <string>
 #include <sstream>
-#include "CharacterStack.h"
+#include "ItemStack.h"
 using namespace std;
 int lineCount = 0; // Declare and initialize a line counter
 //*************************************  FUNCTION HEADER  *********************************************
@@ -46,20 +46,21 @@ void Header(ofstream &Outfile)
 	Outfile << setw(30) << "Assignment #4" << endl;
 	Outfile << setw(35) << "---------------------------------- - ";
 	Outfile << setw(35) << "---------------------------------- - " << endl << endl;
-	lineCount += 4;
+	lineCount += 4; // Increment the line count
 	return;
 }
 //************************************* END OF FUNCTION HEADER  ***************************************
 //*************************************  FUNCTION FOOTER  *********************************************
 void Footer(ofstream &Outfile)
 {
-	// Receives – the output file
-	// Task - Prints the output salutation
-	// Returns - Nothing
+		// Receives – the output file
+		// Task - Prints the output salutation
+		// Returns - Nothing
 	Outfile << endl;
 	Outfile << setw(35) << "-------------------------------- - " << endl;
 	Outfile << setw(35) << " | END OF PROGRAM OUTPUT | " << endl;
 	Outfile << setw(35) << "-------------------------------- - " << endl;
+	lineCount += 4; // Increment the line counter
 	return;
 }
 //************************************* END OF FUNCTION FOOTER  ***************************************
@@ -67,9 +68,9 @@ void newPage(ofstream&dataOUT) {
 		// Receives – the output file
 		// Task - Skip to the top of the next page
 		// Returns - Nothing
-
 		// Insert lines until the end of the page is reached
-	while (lineCount < 50) { 
+	int MAXPAGELINES = 50;
+	while (lineCount < MAXPAGELINES) {
 		dataOUT << endl;
 		lineCount++;
 	}
@@ -81,7 +82,6 @@ StackClass invertStack(StackClass stack1) {
 		// Receives – One Stack
 		// Task - Invert stack to oposite order
 		// Returns - The inverted stack
-
 		// Invert the stack passed in
 	StackClass stack2;
 	while (!stack1.isEmpty()) {
@@ -91,41 +91,42 @@ StackClass invertStack(StackClass stack1) {
 	return stack2;
 }
 //*****************************************************************************************************
-bool getLine(ifstream&dataIN, StackClass &infixStack) {
-		// Receives – The input and output files
-		// Task - Process each data record/op code.
-		// Returns - Nothing
-
+bool getLine(ifstream&dataIN, StackClass &infixExp) {
+		// Receives – The input file and the infixExp
+		// Task - Read in a line of data.
+		// Returns - A stack filled with one line of data, and true/false for successful operation
 		// Declare local variables
 	bool firstPrint = true;
-	CharacterType character;
+	ItemType character;
 	char newLine[31];
 	dataIN >> ws >> newLine >> ws; // Get line
-	if (newLine[0] != 'X') {  // As long as there is another line, read it in
-		int i = 0;
+	if (newLine[0] != 'X') {  // If there is another line, read it in
+		int i = 0; // Declare an initialize variable to keep track of line position
 			// Read in each character of the line as a separate node
 		while (newLine[i] != '\0') { // Stop once a blank space is reached
-			character.charValue = newLine[i];
-			character.priority = 0;
+			character.strValue = newLine[i];
+			character.priority = 0;	// Initialize the priority of the item to 0
+				// If the item is a digit, read it as an operand
 			if (isdigit(newLine[i])) {
 				character.intValue = newLine[i] - '0';
 				character.type = "operand";
 			}
+				// If the item is not a digit, read it as an operator
 			else{
 				if (newLine[i] == '+' || newLine[i] == '-') {
-					character.priority = 1;
+					character.priority = 1; // If the item is a '+' or '-' set priority to 1
 				}
 				if (newLine[i] == '*' || newLine[i] == '/') {
-					character.priority = 2;
+					character.priority = 2; // If the item is a '*' or '/' set priority to 2
 				}
-				character.intValue = NULL;
+				character.intValue = NULL;	// Set the integer value for operators to NULL
 				character.type = "operator";
 			}
-			infixStack.push(character);
+			infixExp.push(character);	// Push the new item onto the infix stack
 			i++;
 		}
-			// The line is now in reverse order, so invert it
-		infixStack = invertStack(infixStack);
+			// The line was pushed onto stack in reverse order, so invert it
+		infixExp = invertStack(infixExp);
 		return true; // If a line was read in, return true
 	}
 	return false; // If no line was read, return false
@@ -135,156 +136,162 @@ void printStack(ofstream&dataOUT, StackClass stack) {
 		// Receives – The output file and a stack
 		// Task - Print a stack
 		// Returns - Nothing
-	string stackString = ""; // Initialize string to hold characters in stack
+	string stackString = ""; // Initialize string to hold items of stack
 	if (stack.isEmpty()) {	// If the stack is empty, print "Empty"
 		dataOUT << "Empty";
 		return;
 	}
-	while (!stack.isEmpty()) { // While there is another value in the stack, add it to the string
-		stackString += stack.pop().charValue;
+	while (!stack.isEmpty()) { // While there is another item in the stack, add it to the string
+		stackString += stack.pop().strValue; 
 	}
-	dataOUT << stackString;
-}
-void printResults(ofstream&dataOUT, StackClass infixStack, int answer) {
-		// Receives – The output file, the infix stack and the evaluated answer
-		// Task - Print the infix stack and the numerical answer
-		// Returns - Nothing	
-	dataOUT << "ORIGINAL EXPRESSION AND THE ANSWER:" << endl;
-	dataOUT << "            "; // Insert some blank space before infix expression
-	printStack(dataOUT, infixStack);
-	dataOUT << " = " << answer << endl << endl;
-	lineCount+=3;
+	dataOUT << stackString; // Print the string which now holds the entire stack
 }
 //*****************************************************************************************************
-void printTitle1(ofstream&dataOUT) {
+void printResults(ofstream&dataOUT, StackClass infixExp, int answer) {
+		// Receives – The output file, the original infix stack and the evaluated answer
+		// Task - Print the infix stack and the numerical answer
+		// Returns - Nothing	
+		// Print a data header
+	dataOUT << "ORIGINAL EXPRESSION AND THE ANSWER:" << endl;
+	dataOUT << "            "; // Insert some blank space before infix expression
+		// Print the original infix expression
+	printStack(dataOUT, infixExp);
+		// Print the answer to the expression
+	dataOUT << " = " << answer << endl << endl;
+	lineCount+=3; // Increment the line counter
+}
+//*****************************************************************************************************
+void printTitleConversion(ofstream&dataOUT) {
+		// Receives – The output file
+		// Task - Print data titles for conversion display
+		// Returns - Nothing	
 	dataOUT << setw(50) << "CONVERSION DISPLAY" << endl;
 	dataOUT << "Infix Expression" << setw(28) << "POSTFIX Expression" << setw(28) << "Stack Contents";
 	dataOUT << endl << setw(73) << "(Top to Bottom)" << endl;
-	lineCount += 3;
+	lineCount += 3; // increment the line counter
 }
 //*****************************************************************************************************
-void printTitle2(ofstream&dataOUT) {
+void printTitleEvaluation(ofstream&dataOUT) {
+		// Receives – The output file
+		// Task - Print data titles for evaluation display
+		// Returns - Nothing	
 	dataOUT << setw(50) << "Evaluation DISPLAY" << endl;
 	dataOUT << setw(28) << "POSTFIX Expression" << setw(38) << "Stack Contents";
 	dataOUT << endl << setw(67) << "(Top to Bottom)" << endl;
-	lineCount += 3;
+	lineCount += 3; // Increment the line counter
 }
 //*****************************************************************************************************
-void printAllStacks(ofstream &dataOUT, StackClass infixStack,
-	StackClass postfixStack, StackClass operatorStack, int&loopCount) {
-	dataOUT << right; // Set output right justified
-	
-	dataOUT << setw(20);
-	printStack(dataOUT, infixStack); // Print the infix stack
-	dataOUT << left;
-	dataOUT << "              " << setw(30);
-	printStack(dataOUT, postfixStack); // Print the Postfix stack
+void printAllStacks(ofstream &dataOUT, StackClass infixExp,
+	StackClass postfixExp, StackClass opStack) {
+		// Receives – The output file, each expression and the opstack
+		// Task - Print each expression and the opstack
+		// Returns - Nothing	
+	dataOUT << right; // Set output right justified	
+	dataOUT << setw(20); // Set width for infix expression
+	printStack(dataOUT, infixExp); // Print the infix stack
+	dataOUT << left << "              " << setw(30); // Add some space between postfix
+	printStack(dataOUT, postfixExp); // Print the Postfix expression
 	dataOUT << setw(10);
-	printStack(dataOUT, operatorStack); // Print the operand stack
-	dataOUT << right << endl; // Return output to right justified
-	lineCount += 2;
-	loopCount++; // Increment the count of how many times stacks have been printed
-}
-void printPostAndOpStack(ofstream&dataOUT, StackClass postfixStack, StackClass opStack, int&loopCount){
-
-
-
-	dataOUT << right; // Set output right justified
-	dataOUT << setw(20);
-	printStack(dataOUT, postfixStack); // Print the Postfix stack
-	dataOUT << left << "                                    " << setw(15);
 	printStack(dataOUT, opStack); // Print the operand stack
 	dataOUT << right << endl; // Return output to right justified
-	lineCount += 2;
-	loopCount++; // Increment the count of how many times stacks have been printed
+	lineCount ++; // Increment the line counter
 }
-void convertInfixToPostfix(ofstream&dataOUT, StackClass infixStack, StackClass &postfixStack) {
-	// Receives – The output file, the infix stack and the postfixStack
-	// Task - Convert the infix expression to a postfix expression
-	// Returns - Nothing
+//*****************************************************************************************************
+void printPostAndOpStack(ofstream&dataOUT, StackClass postfixExp, StackClass opStack){
+		// Receives – The output file, postfix expression and the opstack
+		// Task - Print each expression and the opstack
+		// Returns - Nothing	
+	dataOUT << right; // Set output right justified
+	dataOUT << setw(20);
+	printStack(dataOUT, postfixExp); // Print the Postfix stack
+	dataOUT << left << "                                    " << setw(15);
+	printStack(dataOUT, opStack); // Print the op stack
+	dataOUT << right << endl; // Return output to right justified
+	lineCount ++; // Increment the line counter
+}
+//*****************************************************************************************************
+void convertInfixToPostfix(ofstream&dataOUT, StackClass infixExp, StackClass &postfixExp) {
+		// Receives – The output file, the infix expression and the postfix expression
+		// Task - Convert the infix expression to a postfix expression / print log
+		// Returns - Nothing
 	StackClass opStack;
-	CharacterType char1, char2;
-
-	printTitle1(dataOUT); // Print title for conversion steps
-	int loopCount = 0;
-
-	while (!infixStack.isEmpty()) {
-
-		printAllStacks(dataOUT, infixStack, invertStack(postfixStack), opStack, loopCount);
-
-		// pop the first character from the infix expression
-		char1 = infixStack.pop();
-		// If the item is an operand, push it to postfix and restart
-		if (char1.type == "operand") {
-			postfixStack.push(char1);
+	ItemType item1, item2;
+	printTitleConversion(dataOUT); // Print title for conversion steps
+	while (!infixExp.isEmpty()) { // Keep converting until the infix expression is empty
+			// Print the contents of each espression and opstack
+		printAllStacks(dataOUT, infixExp, invertStack(postfixExp), opStack); 
+			// Pop the first item from the infix expression
+		item1 = infixExp.pop();
+			// If the item is an operand, push it to postfix and restart
+		if (item1.type == "operand") {
+			postfixExp.push(item1);
 			continue;
 		}
-
-		if (char1.type == "operator") {
-			// If the item is an operator, and opstack is empty, push it to opstack
-			
+		if (item1.type == "operator") {			
+				// If the item is an operator, and opstack is empty, push it to opstack
 			if (opStack.isEmpty()) {
-				opStack.push(char1);
+				opStack.push(item1);
 				continue;
 			}
-			// If the item is a left perenthesis, or of greater priority than next stack item,
-			// push both to stack
-			char2 = opStack.pop();
-			if (char1.charValue == ')') {
+				// If the item is a left perenthesis, or of greater priority than next stack item,
+				// push both to stack
+			item2 = opStack.pop();
+			if (item1.strValue == ")") {
 
-				while (char2.charValue != '(') {
-					postfixStack.push(char2);
-					char2 = opStack.pop();
+				while (item2.strValue != "(") {
+					postfixExp.push(item2);
+					item2 = opStack.pop();
 				}
 				continue;
 			}
-			if (char1.charValue == '(' || char1.priority > char2.priority) {
-				opStack.push(char2);
-				opStack.push(char1);
+			if (item1.strValue == "(" || item1.priority > item2.priority) {
+				opStack.push(item2);
+				opStack.push(item1);
 				continue;
 			}
 			if (opStack.isEmpty()) { // If stack is empty, put popped operator in postfix
-				postfixStack.push(char2);
-				opStack.push(char1); // Put operator from infix in opstack
+				postfixExp.push(item2);
+				opStack.push(item1); // Put operator from infix in opstack
 				continue;
 			}
-			if (char2.priority >= char1.priority) {
-				postfixStack.push(char2);
+			if (item2.priority >= item1.priority) {
+				postfixExp.push(item2);
+				opStack.push(item1);
 				continue;
 			}			
 			else {
-				postfixStack.push(char1);
+				postfixExp.push(item1);
 			}
 		}
 	}
 		// Print all stacks one last time before checking opstack contents
-	printAllStacks(dataOUT, infixStack, invertStack(postfixStack), opStack, loopCount);
+	printAllStacks(dataOUT, infixExp, invertStack(postfixExp), opStack);
 	// After infix expression has been emptied, finish removing operators from stack
 	while (!opStack.isEmpty()) {
-		postfixStack.push(opStack.pop());
-		printAllStacks(dataOUT, infixStack, invertStack(postfixStack), opStack, loopCount);
+		postfixExp.push(opStack.pop());
+		printAllStacks(dataOUT, infixExp, invertStack(postfixExp), opStack);
 	}
-	postfixStack = invertStack(postfixStack); // Invert postfix stack so it's in correct order
+	postfixExp = invertStack(postfixExp); // Invert postfix stack so it's in correct order
 	dataOUT << endl; // Place a space between Conversion and Evaluation displays
 	lineCount++;
 }
-int evaluatePostfix(ofstream&dataOUT, StackClass postfixStack) {
+//*****************************************************************************************************
+int evaluatePostfix(ofstream&dataOUT, StackClass postfixExp) {
 
 
 	int answer = 0,result = 0;
 
 	StackClass opStack;
-	CharacterType char1, char2, char3;
+	ItemType char1, char2, char3,resultChar;
 
-	printTitle2(dataOUT); // Print title for evaluation steps
-	int loopCount = 0;
+	printTitleEvaluation(dataOUT); // Print title for evaluation steps
 
-	while (!postfixStack.isEmpty()) {
+	while (!postfixExp.isEmpty()) {
 		
-		printPostAndOpStack(dataOUT, postfixStack, opStack, loopCount);
+		printPostAndOpStack(dataOUT, postfixExp, opStack);
 
 
-		char1 = postfixStack.pop();
+		char1 = postfixExp.pop();
 
 		if (char1.type == "operand") {
 			opStack.push(char1);
@@ -294,51 +301,66 @@ int evaluatePostfix(ofstream&dataOUT, StackClass postfixStack) {
 			char2 = opStack.pop();
 			char3 = opStack.pop();
 
-			switch (char1.charValue){
-			case '/': answer = (char3.intValue / char2.intValue);
-				break;
-			case '*': answer = (char3.intValue * char2.intValue);
-				break;
-			case '+': answer = (char3.intValue + char2.intValue);
-				break;
-			case '-': answer = (char3.intValue - char2.intValue);				
-				break;
+			if (char1.strValue == "/") {
+				answer = (char3.intValue / char2.intValue);
+				resultChar.priority = 2;
+			}
+			if (char1.strValue == "*") {
+				answer = (char3.intValue * char2.intValue);
+				resultChar.priority = 2;
+			}
+			if (char1.strValue == "+") {
+				answer = (char3.intValue + char2.intValue);
+				resultChar.priority = 1;
+			}
+			if (char1.strValue == "-") {
+				answer = (char3.intValue - char2.intValue);
+				resultChar.priority = 1;
 			}
 
-			char2.intValue = answer;
-			char2.charValue = answer;
-			opStack.push(char2);
+			resultChar.intValue = answer;
+			resultChar.strValue = to_string(answer);
+			resultChar.type = "operand";
+			
+			opStack.push(resultChar);
 		}
 	
 	}
 
-	printPostAndOpStack(dataOUT, postfixStack, opStack, loopCount);
+		// Print postfix stack and opstack
+	printPostAndOpStack(dataOUT, postfixExp, opStack);
+
+		// if answer is still in opstack, remove it, then print one last time
+	if (!opStack.isEmpty()) {
+		opStack.clear();
+		printPostAndOpStack(dataOUT, postfixExp, opStack);
+	}
 
 
 	return answer;
 }
 //*****************************************************************************************************
 int main() {
-	// Receives – Nothing
-	// Task - Call each necessary function of the program in order
-	// Returns - Nothing
-	// Declare variables used in program.	 
+		// Receives – Nothing
+		// Task - Call each necessary function of the program in order
+		// Returns - Nothing
+		// Declare variables used in program.	 
 	ifstream dataIN;
 	ofstream dataOUT;
-	StackClass infixStack, postfixStack;
+	StackClass infixExp, postfixExp;
 
 	dataIN.open("stack_in.txt"); // Open the file containing data.
 	dataOUT.open("dataOUT.doc"); // Create and open the file to write data to.		
 	Header(dataOUT); // Print data header.
-	while (getLine(dataIN, infixStack)) { // While an expression is available, process it
+	while (getLine(dataIN, infixExp)) { // While an expression is available, process it
 			// Process each line of data from the input file.
-		convertInfixToPostfix(dataOUT, infixStack, postfixStack);
-		int answer = evaluatePostfix(dataOUT, postfixStack);
-		printResults(dataOUT, infixStack, answer);
+		convertInfixToPostfix(dataOUT, infixExp, postfixExp);
+		int answer = evaluatePostfix(dataOUT, postfixExp);
+		printResults(dataOUT, infixExp, answer);
 
 			// Reset both infix and postfix stacks
-		infixStack.clear();
-		postfixStack.clear();
+		infixExp.clear();
+		postfixExp.clear();
 			// Start on a new page
 		newPage(dataOUT);
 	}
@@ -347,3 +369,4 @@ int main() {
 	dataOUT.close(); // Close output data file.
 	return 0;
 }
+//*****************************************************************************************************

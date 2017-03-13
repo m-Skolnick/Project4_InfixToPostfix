@@ -113,7 +113,7 @@
     <ClCompile Include="Project4.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="CharacterStack.h" />
+    <ClInclude Include="ItemStack.h" />
   </ItemGroup>
   <ItemGroup>
     <Text Include="stack_in.txt">
